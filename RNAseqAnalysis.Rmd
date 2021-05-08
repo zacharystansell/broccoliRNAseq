@@ -1,0 +1,1411 @@
+---
+title: "Heat Tolerance RNA-Seq analysis"
+author: "Zachary Stansell ; Thomas Björkman"
+date: '`r format(Sys.Date(), "%d-%b-%Y")`'
+output:
+  html_document:
+    highlight: pygments
+    theme: united
+    toc: yes
+    toc_float:
+      collapsed: yes
+      smooth_scroll: yes
+  pdf_document:
+    toc: yes
+bibliography: docs/bibliography.bib
+---
+
+```{r setup, include=FALSE, eval=TRUE}
+source("bin/R/packages.R")        
+source("bin/R/plotCountsMod.R") 
+source("bin/R/deg.plot.R") 
+
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+
+```{r im1,fig.cap="fig 1: 'P13xP19', a heat insensitive genotype", echo=FALSE }
+knitr::include_graphics("docs/images/P13xP19.JPG",)
+```
+
+```{r im2,, fig.cap="fig 2: 'Clara', a heat sensitive genotype grown  > 22 °C", echo=FALSE}
+knitr::include_graphics("docs/images/clara.JPG")
+```
+
+```{r im3,fig.cap="fig 3: 'Clara', a heat sensitive genotype, grown in ~ 18 °C", echo=FALSE }
+knitr::include_graphics("docs/images/clara_intermed.JPG")
+```
+
+
+
+# Abstract
+
+Horticultural quality in broccoli heads is negatively affected by heat stress during the transition from vegetative to reproductive stage (22 C).
+Knowledge of differential response in broccoli germplasm is not currently well-understood, therefore we compared the transcriptomes between heat-sensitive and head tolerant broccoli lines.
+We evauluated candidates implicated in the heat-sensitivity pathway using weughted gene correlation network analysis revealing genes involved in xyz
+
+the flowering candidates BoFLCx and FT and XYZ were highly-expressed in high tempratrue treatments. 
+
+high temprature induced XYS
+
+these results indicate parhtways essential to the heat-tolerace and suceptable heading response in broccoli and may facilitare future improvement efforts for locally adapted germplasm.    
+Approximately xxx  million clean reads were assembled into Xxx sequences with an average length of xxx bp
+A total of xyz unigene sequences were successfully annotated.
+XXX pathways were annotated by Kyoto Encyclopedia of Genes and Genomes (KEGG) pathway analysis
+
+
+
+# Introduction
+
+Plants lack the ability to escape abiotic stressors such such as evelagted tempratures, and evelated temprarture greatly affect growth and developmental regulation.
+
+The transition from vegteetaivbe to flowering is highly regulated by a number of endogenous and exogenous cues. 
+Brassica oleracea vegetables vary in chilling hour requirements to initiate head induction, largely explaingin differences in annual versus biennial crop types.  
+
+For broccoli, the optimal temprature for high-horticultural heads is below 18 C. 
+These cooler tempratures  allow accumulation of chilling hour requirments for heading induction. 
+
+Higher tempreature conditions, especially during the reproductive switch causes a number of horticultural quality defects, such as an outright failure to produce a heading structure, an irregular arrest stage resulting in uneven bud and curd structure, cauline leaves bisecting heading structure (bracting), and color defects. 
+
+Timing of flowering is regulated by a complex translational network of endogenous and exogenous pathways.
+In broccoli and other B. oleracea crop groups, a protracted perioud of below this tempreature threshold is reuqired to induce heading. 
+
+Several key regultors are involved in the transition to flowering via accumlation of chilling hours.
+FLOWERING LOCUS C (FLC) negtaively regulaes downstream flowering inducing genes, such as  SUPPRESSOR OF OVEREXPRESSION OF CO 1(SOC1) and FLOWERING LOCUS T (FT)
+Suppression of SOC1 and FT inhibits meristem identientiy genes such as AP1 and LFY .
+
+Alleic variants of FLC are likely involved in variaton in flowering time \cite{stansell_complex_2019} cite more ..
+
+
+An ability to tolerace sustatined tempratures, basal thermotolerace compared with accquired thermotolerance an adpated  capacity after previous exposure to subleathal temps. 
+%Qin D, Wu H, Peng H, Yao Y, Ni Z, Li Z, Zhou C, Sun Q. Heat stress-responsive transcriptome analysis in heat susceptible and tolerant wheat (Triticum aestivum L.) by using wheat genome Array. BMC Genomics. 2008;9:432.
+
+%In the early developmental stages of Arabidopsis, FLC is highly expressed and its expression is modulated dynamically by various regulators, including vernalization, DNA methylation, and histone acetylation within the promoter-transcription start region [16, 17].
+
+
+Broccoli (Brassica oleracea var. italica) is the most economically significant cole crop in the United States, but current production systems are geographically limited by a lack of environmentally adapted germplasm. 
+Outside of these predominantly Western production regions, periods of intermittent heat stress can dramatically reduces horticultural quality in broccoli. 
+By gaining a more comprehensive understanding the genetic mechanism underpinning curd morphology and arrest under heat-stressed conditions, a number of positive outcome may be achieved. 
+For example, the development of locally adapted germplasm, a reduction in CO2 emissions, climate resilience, and overall higher horticultural quality heads.  
+  
+Broccoli exhibits an interesting but relatively poorly understood, biologically and economically important characteristic: temperature-dependant development-stage arrest during curd development. 
+When grown under optimal environmental conditions, broccoli is characterized by a developmental arrest during floral bud proliferation followed by head enlargement. 
+Exposure to high temperature during a specific developmental window has been implicated in a heat-stress syndrome characterized by either a premature developmental arrest stage during curd formation or an outright inhibition of reproductive development. 
+
+This experiment is designed to illuminate this heat-response behaviour by examining expression patterns under carefully controlled environmental conditions within a constrained genetic background. 
+The genotype 'Clara' ([Known-You Seed Company](http://www.knownyou.com/), Kaohsiung, Taiwan) exhibits an unusually temperature sensitive developmental arrest stage phenotype. 
+During the transition from vegetative to reproductive stage, curd arrest occurs during floral bud development under optimal conditions (16 d/12 $^\circ$ C) and during inflorescence meristem development under warmer conditions (28 d/22 $^\circ$ C). 
+Arrest stage also appears to be on a continuum; e.g. when plants are exposed to intermediate temperatures, arrest stage is intermediate. 
+A control genotype, the F1 hybrid P13xP19, developed during the course of the [Eastern Broccoli Project](https://blogs.cornell.edu/easternbroccoliproject/) exhibits strong head forming stability under similar or even warmer environmental conditions. 
+
+The genetic architecture responsible for this temperature-dependant developmental stage arrest is currently not fully understood. 
+Initial crossing studies suggested that the cauliflower heading phenotype (inflorescence meristem arrest) was caused by a single dominate and multiple recessive factors (Gray and Crisp 1979; Crisp 1982). 
+Work by Kempen et al. (1995) identified apparent loss-of-function MADS-domain double mutant (ap1 cal) in Arabidopsis thaliana encoding partially redundant floral developmental activities that exhibited a seemingly "cauliflower-like" arrest and proliferation phenotype. 
+Along with additional work by Anthony et al. (1995) and Carr and Irish (1996), efforts were made to expand these findings to developmental arrest stage in broccoli and cauliflower, which are in the same family as A. thaliana but members of different tribes. 
+This and other research conducted in the 1990s initially suggested the difference in arrest stage between cauliflower and broccoli was linked to a truncated loss-of-function BoCAL homologue in cauliflower, with the BoAP1 maintaining essentially wild-type functionality as evidenced by otherwise normal post-arrest flower development in broccoli and cauliflower. 
+A competing hypothesis implicated relative transcript abundance of BoAP1 as the primary determinant for arrest stage, but these expression levels appeared to be highly cultivar specific and not strongly linked to curding morphology. 
+BoAP1 localization to sepals and petals only occurs by stage 5 and is more gradual than AP1 localization (stage 3) suggesting distinct regulatory architectures between these two species. 
+
+Along with BoAP1, the B. oleracea homologue of the stage-specific floral-meristem identity-specifying gene LEAFY (BoLFY) was shown accumulate in meristematic tissue of plants exhibiting curds (Anthony 1995).
+Interestingly, this study also demonstrated that higher temperatures prevent the transcription and/or accumulation of BoLFY and BoAP1  RNA  transcripts, via an unknown mechanism. 
+Transcription of  BoAP1 and BoLFY begins during curd formation and appears to encode functional proteins, but is not independently sufficient to initiate floral primordia from curd meristems, even though both transcripts increase in abundance until this point. 
+Therefore, either these two genes are independently insufficient to drive transition to floral primordia, the RNA is not translated, or post-translational modifications are required.
+
+There is a growing centrality of role of boFLC in regulating the vegetative switch in B. oleracea crops.
+
+A candidate gene responsible for maintaining arrest in the meristematic stage of curd development should both be preferentially expressed in the curd meristems and decrease in abundance after the resumption of floral development. 
+This gene could, in theory, function independently of temperature regulated pathways or be directly or indirectly be a target of other temperature regulated genes. 
+
+Additional floral-specifying candidate genes have been suggested: In Arabidopsis,  AP2 (Irish and Sussex 1990; Bowman et al. 1993; Shannon and Meeks-Wagner, 1993) and UFO (Levin and Meyerowitz, 1995; Wilkinson and Haughn 1995; Samach et al. 1999) have been shown to behave redundantly with AP1 in the role of floral primordia specification.
+While expression patterns for B. oleracea homologues of UFO and AP2  do support their role as organ identity specifying genes, expression patterns are not congruent with a role in floral initiation (Duclos and Björkman, 2007). 
+Similar expression pattern analysis was conducted Duclos and Björkman eliminated other candidate floral initiation genes such as CCE1. 
+
+Broccoli (*Brassica oleracea* var. *italica*) is the most economically significant
+cole crop in the United States, but current production systems are geographically limited by a lack of environmentally adapted germplasm. 
+Outside of these predominantly Western production regions, periods of intermittent heat stress can dramatically reduces horticultural quality in broccoli. 
+By gaining a more comprehensive understanding the genetic mechanism underpinning curd morphology and arrest under heat-stressed conditions, a number of positive outcome may be achieved. 
+For example, the development of locally adapted germplasm, a reduction in CO2 emissions, climate resilience, and overall higher horticultural quality heads.
+
+Broccoli exhibits an interesting but relatively poorly understood, biologically and economically important characteristic: temperature-dependant development-stage arrest during curd development. 
+When grown under optimal environmental conditions, broccoli is characterized by a developmental arrest during floral bud proliferation followed by head enlargement. 
+Exposure to high temperature during a specific developmental window has been implicated in a heat-stress syndrome characterized by either a premature developmental arrest stage during curd formation or an outright inhibition of reproductive development.
+This experiment is designed to illuminate this heat-response behaviour by examining expression patterns under carefully controlled environmental conditions within a constrained genetic background. 
+
+The genotype ’Clara’ ([Known-You Seed Company](http://www.knownyou.com/), Kaohsiung, Taiwan) exhibits an unusually temperature sensitive developmental arrest stage phenotype. 
+During the transition from vegetative to reproductive stage, curd arrest occurs during floral bud development under optimal conditions (16 d/12 °C) and during inflorescence meristem development under warmer con- ditions (28 d/22 °C). 
+Arrest stage also appears to be on a continuum; e.g. when plants are exposed to intermediate temperatures, arrest stage is inter- mediate. 
+A heat insensitive genotype, the F1 hybrid P13xP19, developed during the course of the [Eastern Broccoli Project](https://blogs.cornell.edu/easternbroccoliproject/) exhibits strong head forming stability under similar or even warmer environmental conditions.
+
+The genetic architecture responsible for this temperature-dependant developmental stage arrest is currently not fully understood.
+Initial crossing studies suggested that the cauliflower heading phenotype (inflorescence meristem arrest) was caused by a single dominate and multiple recessive factors (Gray and Crisp 1979; Crisp 1982). 
+Work by Kempen et al. (1995) identified apparent loss-of-function MADS-domain double mutant (*ap1 cal*) in *Arabidopsis thaliana* encoding partially redundant floral developmental activities that exhibited a seemingly ”cauliflower-like” arrest and proliferation phenotype. 
+Along with additional work by Anthony et al. (1995) and Carr and Irish (1996), efforts were made to expand these findings to developmental arrest stage in broccoli and cauliflower, which are in the same family as *A. thaliana* but members of different tribes. 
+This and other research conducted in the 1990s initially suggested the difference in arrest stage between cauliflower and broccoli was linked to a truncated loss-of-function *BoCAL* homologue in cauliflower, with the *BoAP1* maintaining essentially wild-type functionality as evidenced by otherwise normal post-arrest flower development in broccoli and cauliflower. 
+
+A competing hypothesis implicated relative transcript abundance of *BoAP1* as the primary determinant for arrest stage, but these expression levels appeared to be highly cultivar specific and not strongly linked to curding morphology. 
+BoAP1 localization to sepals and petals only occurs by stage 5 and is more gradual than *AP1* localization (stage 3) suggesting distinct regulatory architectures between these two species.
+Along with *BoAP1*, the *B. oleracea* homologue of the stage-specific floral meristem identity-specifying gene *LEAFY* (*BoLFY*) was shown accumulate in meristematic tissue of plants exhibiting curds (Anthony 1995). 
+Interestingly, this study also demonstrated that higher temperatures prevent the transcription and/or accumulation of *BoLFY* and BoAP1 RNA transcripts, via an unknown mechanism. 
+
+Transcription of *BoAP1* and *BoLFY* begins during curd formation and appears to encode functional proteins, but is not independently sufficient to initiate floral primordia from curd meristems, even though both transcripts increase in abundance until this point.
+Therefore, either these two genes are independently insufficient to drive transition to floral primordia, the RNA is not translated, or post-translational modifications are required.
+
+There is a growing centrality of role of *BoFLC* in regulating the vegetative switch in *B. oleracea* crops.
+A candidate gene responsible for maintaining arrest in the meristematic stage of curd development should both be preferentially expressed in the curd meristems and decrease in abundance after the resumption of floral development. 
+This gene could, in theory, function independently of temperature regulated pathways or be directly or indirectly be a target of other temperature regulated genes.
+
+Additional floral-specifying candidate genes have been suggested: In Arabidopsis, *AP2* (Irish and Sussex 1990; Bowman et al. 1993; Shannon and Meeks-Wagner, 1993) and *UFO* (Levin and Meyerowitz, 1995; Wilkinson and Haughn 1995; Samach et al. 1999) have been shown to behave redundantly with *AP1* in the role of floral primordia specification. 
+
+While expression patterns for *B. oleracea* homologues of *UFO* and *AP2* do support their role as organ identity specifying genes, expression patterns are not congruent with a role in floral initiation (Duclos and Björkman, 2007). 
+Similar expression pattern analysis was conducted Duclos and Björkman eliminated other candidate floral initiation genes such as *CCE1*.
+
+# Materials & Methods
+## Plant Material & RNA Extraction
+Two *B. oleracea* var *italica* genotypes were used in this study. 
+Seeds of the heat-susceptible F1 hybrid ‘Clara’, a italica/botrytis intermediate marketed as a ‘tropical cauliflower’ or ‘brocoflower’, was obtained from Known-You Seed Company Ltd (Kaohsiung, Taiwan). 
+The heat-tolerant F 1 hybrid ‘P13 ×P19’ is a high-preforming genotype adapted to heat-stressed conditions in the United States and was developed during the Eastern Broccoli Project using germplasm sourced from the USDA-ARS Vegetable Laboratory in Charleston SC and Cornell AgriTech in Geneva NY.
+Seeds were started under standard greenhouse conditions (22-24 °C day, 16-18 °C night) in 128 cell trays in Xgrowth.mediaX and transplanted into 4 L pots at the third to forth true leaf stage. 
+Plants were fertilized using liquid X-X-X twice per week.
+To accurately coordinate transfer of germplasm into growth chambers 3-5 days before reproductive meristem initiation, an initial experiment evaluated time from planting to head formation. 
+Growth chambers were were calibrated to deliver 500 μmol· m-2 · s-1 in both heated and optimal treatments over a 14 hour day. 
+The optimal temperature and heat-stress treatment growth chambers were set to 16/12 °C day/night and 28/22 °C day/night, respectively. 
+Sampling was conducted within the growth chambers by first removing any leaves or petioles and excising only the floral meristem tissues when the heading inflorescence primordia was between 1.0 to 2.0 mm across. 
+Samples were collected in 2 ml tubes, immediately frozen in liquid nitrogen, and were stored in a in a -80 °C freezer until extraction.
+For sequencing, RNA was extracted using Qiagen RNAeasy mini according to the manufacture’s protocol. 
+RNA was quantified with spectrophotometry and RNA quality (RIN) was evaluated using a XXX fragment analyzer.
+Extracted RNA was stored at -80 °C and transported to sequencing facility on dry ice. 
+Samples with RIN < 7.0 were excluded from analysis.
+
+Two \textit{B. oleracea} var \textit{italica} genotypes were used in this study.
+Seeds of the heat-susceptible F\textsubscript{1} hybrid `Clara', a \textit{italica}/\textit{botrytis} intermediate marketed as a `tropical cauliflower' or `broccoflower', was obtained from Known-You Seed Company Ltd (Kaohsiung, Taiwan).
+The heat-tolerant F\textsubscript{1} hybrid `P\textsubscript{13}$\times$P\textsubscript{19}' is a high-preforming F\textsubscript{1} hybrid adapted to heat-stressed conditions in the United States and was developed during the Eastern Broccoli Project using germplasm sourced from the USDA-ARS Vegetable Laboratory in Charleston SC and Cornell AgriTech in Geneva NY.
+
+Seeds were started under standard greenhouse conditions (22-24$^\circ$C day, 16-18$^\circ$C night) in 128 cell trays in Sun-Gro 8 growth media and transplanted into 4 L pots at the third to forth true leaf stage.
+Plants were fertilized using liquid X-X-X twice per week 
+To accurately coordinate transfer of germplasm into growth chambers 3-5 days before reproductive meristem initiation, an initial experiment evaluated time from planting to head formation.
+Growth chambers were were calibrated to deliver 500 $\mu$mol$\cdot$m\textsuperscript{-2}$\cdot$s\textsuperscript{-1} in both heated and optimal treatments over a 14 hour day. 
+The optimal temperature and heat-stress treatment growth chambers were set to 16/12 $^\circ$C day/night and 28/22 $^\circ$C day/night, respectively.
+Sampling was conducted within the growth chambers by first removing any leaves or petioles and excising only the floral meristem tissues when the heading inflorescence primordia was between 1.0 to 2.0 mm across. 
+Samples were collected in 2 ml tubes, immediately frozen in liquid nitrogen, and were stored in a in a -80 $^\circ$C freezer until extraction.
+
+For sequencing, RNA was extracted using Qiagen RNAeasy mini according to the manufacture's protocol. 
+RNA was quantified with spectrophotometry and RNA quality (RIN) was evaluated using a XXX fragment analyzer. 
+Extracted RNA was stored at -80 $^\circ$C and transported to sequencing facility on dry ice. 
+Samples with RIN $<$ 7.0 were excluded from analysis.
+
+
+ 
+ 
+
+%The genotype ‘Clara’ (Known-You Seed Company Ltd, Taiwan) displays a highly
+%temperature sensitive phenotype and will be grown under standard greenhouse conditions ( in Geneva NY 2018. X days before transition to sensitive stage, plants will be randomly assigned to
+%Percival growth chambers (low temperature treatment = 16 °C/12 °C, high temperature treatment=28
+%C/22 C, 14 hr photoperiod (light intensity of 500 mmol/m2*s), 75% relative humidity.) Plants will be kept
+%in chambers until curds reach harvest maturity. Sampling will occur during the reproductive transition (
+%apical meristem measured apx 1.0 mm in sample plants and cauline leaf primordium with incipient axillary
+%meristems are observed) via meristem dissection. Three biological replicates of both temperature treatments
+%will be included.
+%Samples will be frozen with in liquid nitrogen and stored in -80 °C until extraction.
+
+
+
+## RNA-seq & Analysis
+Raw fastq reads were initially processed with trim-galore (Barbraham Institute) to filter low-quality reads, filter 2-color chemistry bias, and filter for noisy short fragments and adapter sequence by running the command: trim_galore --nextseq 20 --gzip --length 50 --paired --fastqc. 
+These filtered reads were aligned to the BOLv2 reference genome [2] with Ensembl annotations [4]. 
+Raw counts were filtered and analyized using the R [3] package DESeq2 [1] by fitting the model ~geno + temp + geno:temp. 
+Log 2 fold changes were shrunk using the apeglm shrinkage estimator [5] in the lfcShrink() function.
+(see [Cornell Trex](https://github.com/cornell-TREX))
+
+
+Raw fastq reads were initially processed with trim-galore (Barbraham Institute) to filter low-quality reads, filter 2-color chemistry bias, and filter for noisy short fragments and adapter sequence by running the command: \verb!trim_galore --nextseq 20 --gzip --length 50 --paired --fastqc!.
+These filtered reads were aligned to the BOLv2 reference genome \cite{parkin_transcriptome_2014} with Ensembl annotations \cite{ruffier_ensembl_2017}.
+
+
+Raw counts were filtered and analyzed using the R \cite{r_core_team_r_2019} package DESeq2 \cite{love_moderated_2014} by fitting the model \verb!~geno + temp + geno:temp!.
+Log\textsubscript{2} fold changes were shrunk using the apeglm shrinkage estimator \cite{zhu_genome-wide_2019} in the lfcShrink() function.
+
+
+
+
+
+Weighted Correlation Network Analysis (WGCNA) was conducted using the WGCNA package in R \cite{peter_langfelder_fast_2012}. 
+
+
+Gene ontology (GO) analysis was conducted using topGO in R \cite{adrian_alexa_topgo_2019}. 
+
+
+#  Results (Preliminary!)
+
+
+##  *Arabidopsis* Model
+
++ *TFL* maintains indeterminate inflorescence fate.   
+
++ A *TFL1* homolog (Bo9g181670)  and a *TFL2* homolog (Bo2g013840) appear to be DEGs between treatments:
+
++ **This *TFL1* homolog appears to be underexpressed in the heat susceptible x heat treatment line  (Clara):**   
+(Clara x Cold = blue; Clara x Hot = red; P13 x Cold= green; P13 x Hot = yellow)
+![](rst/genes/plots/markdown.plots/Bo9g181670_TFL1.png)
+
+
++ **Some *TFL2* homologs appears to be overexpressed in the heat tolerant x heat treatment line (P13xP19):**
+![](rst/genes/plots/markdown.plots/Bo2g013840_TFL2.png)
+![](rst/genes/plots/markdown.plots/Bo3g012730_TFL2.png)
+![](rst/genes/plots/markdown.plots/Bo9g159960_TFL2.png)
+
+
++ Expression of MADS {*AP1*, *CAL*, *FUL*} temp x floral development ?
++ ***AP1* does not seem to be relevent**
+![](rst/genes/plots/markdown.plots/Bo2g062650_AP1.png)
+![](rst/genes/plots/markdown.plots/Bo6g095760_AP1.png)
+![](rst/genes/plots/markdown.plots/Bo6g108600_AP1.png)
+
++ ***CAL* does not seem to be relevent**
+![](rst/genes/plots/markdown.plots/Bo00825s090_CAL.png)
+
++ ***FUL/AGL* does not seem to be relevent**
+![](rst/genes/plots/markdown.plots/Bo2g161210_AGL8.png)
+![](rst/genes/plots/markdown.plots/Bo7g081460_AGL3.png)
+![](rst/genes/plots/markdown.plots/Bo7g098190_AGL8.png)
+![](rst/genes/plots/markdown.plots/Bo9g014400_AGL8.png)
+![](rst/genes/plots/markdown.plots/Bo9g074400_AGL3.png)
+![](rst/genes/plots/markdown.plots/Bo7g088670_AGL79.png)
+
+
++ Expression of non-MADS expression {*LFY*, *AP2*, *UFO*} temp x floral development?
+  
++ ***LFY* does not seem relevant**  
+![](rst/genes/plots/markdown.plots/Bo2g161690_LFY.png)
+![](rst/genes/plots/markdown.plots/Bo3g109270_LFY.png)
+
++ ***AP2* does exhibit some DEG behavior**  
+![](rst/genes/plots/markdown.plots/Bo1g004960_AP2.png)
+![](rst/genes/plots/markdown.plots/Bo7g118400_AP2.png)
+
+  
++ ***UFO* not a DEG **  
+![](rst/genes/plots/markdown.plots/Bo2g121010_UFO.png)
+
++ How are these expression patterns confirmed or violated by the RNA-seq experimental results?  
+*TFL1*/*TFL2* is a DEG, but *AP1*, *CAL*, and *FUL* are not.  
+*AP2* appears as ~DEG  
+**These reults do NOT support the *Arabidopsis* model.**   
++ Bowman et al. 1993 predict that in cauliflower, *BobCAL(1?)* and *BobLFY* are HIGHLY expressed at < 18 °C, but not in shoots of 'reverted' plants > 25 °C.     
+
+**Additional Notes**  
+
++ *BoLFY* and *BoAP1* transcription is normal and sufficient for conversion of shoot meristems into floral meristems, but translation or post-translational modification is affected by temperature mediated factors
+Within cauliflower, in-situ hybridizations/Northern/PCR (Anthony 1995) show consistent expression of  *BoLFY* and *BoAP1* from curd to petal formation, therefore cauliflower phenotype isn't due to inactivation (at normal temperatures), rather negative modifications by additional factors, such that transcripts never reach certain requisite thresholds for floral primordia development.   
++ The same paper did not observe consistent expression of *BoLFY* and *BoAP1* with already curding cauliflower when placed in 28 °C chambers. The "reverted" tissues were truly vegetative (not 'bracts' which express *BoFLY* and *BoAP1*), however, ****BoLFY* and *BoAP1* do not appear to be DEGs***  
++ Do higher temperatures, in some way, prevent the transcription and/or accumulation of *BoLFY* and *BoAP1* transcripts?   
+  
+
+## *BoAP3* & *BoCAL*
+
+  + Theory: Disruption of floral initiation via temperature mediated weakening or delay of expression of *BoAP3* & *BoCAL*, where localization (spatially and temporally) of *BoAP3* to the floral meristem rather than the inflorescence meristem seems to support [a] site of arrest [b] narrow stage of  maximum temperature sensitivity.    
+  + Expression of *BoAP1* is reduced at high temp (Anthony 1996), is this also true for *BoAP3*?  
+
+  ***AP3 homologs are not clearly DEGs, but for (Bo4g120010) lower in both hot  and cold 'Clara' trtmts.*** 
+
+![](rst/genes/plots/markdown.plots/Bo4g120010_AP3.png)
+![](rst/genes/plots/markdown.plots/Bo8g083600_AP3.png)
+  
+  
+ + If heat injury does not affect ultimate flower structure, does this make canonical floral identity genes irrelevant under this model?  
+ + This model could also be partially explained by temperature-dependant suppression of BoFLC. In A.t., the flc phenotype is more prominent under higher temperature (Alvarez 1992). Is this consistent in 'Clara'?
+
++ BoAP1 & BoCAL expression is sufficient and necessary for floral primordia development.
+ 
++ Does floral initiation upregulate BoAP1/BoCAL, in turn driving floral primordia development?  
++ **Does not seem likely given our data**
+
+
+## *BoFLC* expression
+
+***FLC seems very likely to be involved***  
+![](rst/genes/plots/markdown.plots/Bo3g005470_FLC.png)
+![](rst/genes/plots/markdown.plots/Bo3g024250_FLC.png)
+![](rst/genes/plots/markdown.plots/Bo9g173370_FLC.png)
+![](rst/genes/plots/markdown.plots/Bo9g173400_FLC.png)
+
+x-special/nautilus-clipboard
+copy
+file:///home/zachary/PROJECTS/RNAseq/rst/genes/plots/markdown.plots/Bo1g004960_AP2.png
+
+## *LFY* via *TFL1*
+  +  Meristem arrest stage is maintained by suppression of *LFY* via *TFL1*  mediated suppression of *LFY* and other floral identity genes.
+  + In intermediate arrest stage *BoLFY* transcript abundance should be higher.
+  + In intermediate arrest stage *BoTFL1* abundance should be lower than in inflorescence stage.  
+  + If true, relative [*TFL*]/[*LFY*] transcript abundance would most likely be higher in heat treatments tissues.  
+  
+  
+##  *SOC1*
+  + *SOC1* is a key player in integrating periodic, vernalization, gibberellin, and autonomous pathways.
+  + *SOC1* as a integrator of flowering pathway signaling.  
+  + *SOC1* positively regulates LFY?
+  + *SOC1* is negatively regulated by *FLC* in the vernalization pathway, which is in turn negatively regulated by VRNs from the photoperiodic pathway and many players from autonomous pathway.
+
+  + *SOC1*  is positively regulated by *FT* in the Photoperiodic pathway. *FT* is also essential for V->R transition.   
+![](rst/genes/plots/markdown.plots/Bo3g038880_SOC1.png)
+![](rst/genes/plots/markdown.plots/Bo4g024850_SOC1.png)
+![](rst/genes/plots/markdown.plots/Bo4g195720_SOC1.png)
+
+***FT is seems affected by temp, but genotype independant***  
+![](rst/genes/plots/markdown.plots/Bo6g099320_FT.png)
+
+  
+
+## Alt Splicing
+  + Changes in gene expression are not results of regulator processes downstream of temperature sensing, but are direct temperature effects on these genes. 
+  + Work on alt. splicing
+  + What is the baseline expected alternative splicing abundance changes between two samples? 
+  + What baseline level of non-causal alternative splicing would we expect given the two temperature treatments? 
+  + What fold changes in relative splicing abundance would be considered significant?
+
+## *LFY* does everything hypothesis
+  + *BoLFY* is required for inflorescence meristem initiation, floral primordia specification, and stamen and carpel formation.
+  + *LFY* strongly and directly activates first *LMI1* and later *CAL.*
+  + *LMI1* is activated by an unknown factor x and also strongly and directly activates *CAL*
+  ***LMI genes do not show clear differences in expression***  
+  + *LFY* at a later point in development time directly activates AP1 which is also indirectly activated upstream by *CAL*  
+  + *LMI1* has an additional *LFY*-independent role in specifying meristem identity.  
+  ***This dosn't appear to be the case with our data***
+  + *LFY* targets *LMI1* as a meristem identity regulator.  
+  ***This dosn't appear to be the case with our data, but how to effectively test?***
+  + Counterfactual evidence would not disprove this hypothesis, given the possibility of other mitigating factors; but stable  [*TFL*]/[*LFY*] transcript abundance would necessarily disprove competing hypothesis .
+  + Transcript abundance will change between [XM_013755210.1] and [XM_013755211.1]-- two *LMI* splicing-variant homologues in *B. oleracea*. 
+
+
+## Negative regulation by other factors
+  + Cauliflower curd proliferation is NOT due to deactivation of *BoLFY* or *BoAP1* but by negative regulation of other factors.
+  + Both BoLFY and BoAP1 reach a temperature dependant threshold (stage 4-5) halting inflorescence meristem reiteration and drives development of floral primordia.
+
+## miRNA hypothesis: 
+  + A known subset of miRNAs known to both interact with key flowering regulatory elements and exhibit temperature-dependant behavior.
+  + Key miRNAs 
+    - Upregulated: miRNA{156,157,172,395} 
+    - Downregulated: miRNA{166,391,398,400,827}
+
+## *BoTFL* is repressed by *BoAP1|BoCAL*.
+  + Consistent with *A.t.* model, more or less. 
+  + Loss-of-function *BoCAL* or *BoAP1* would correspond with increased *BoTFL* expression and prolonged arrest meristem inflorescence arrest stage.   
+  + If true, relative [*TFL*]/{[*AP1*] or [*CAL*]} should be greater in heat treatment.  
+  + Contradictory expression patterns evidence weakens this claim, but disproving this hypothesis does not prove any specific alternative hypotheses as correct. 
+
+
+## GPA as age-dependent & temp. sensitivity path hypothesis:
+  + Global proliferative arrest (GPA) timing is genetically controlled by an age-dependent pathway as an evolutionary function (and modified by temp. sensitive species)
+  + "...Different timing of meristem arrest and total fruit production in different ecotypes of Arabidopsis" is a fitness adaptation.(Balanzà, 2018)
+  + *FUL* controls GPA timing through regulation of AP2 and AP2-related genes.
+  + *AP2* and *AP2*-related genes control, directly or indirectly, *WUS* temporal maintenance in the SAM  
+  ***WUS does not appear to be DEG***  
+  + *FUL* mutants produce more fruits because GPA is delayed and the period of fruit production is extended
+  + In A.t.: ful mutants have delayed GPA.
+  + "An overall increase in seed production, so a 'fitness' effect was conferred. This is a different result from (....) where increased flower production such as those affecting cytokinin degradation, where meristems are larger and produce more flowers, but arrest at the same time as wild-type." (Bartrina, 2011)
+  + *WUS* repression in the SAM correlates with GPA. *WUS* expression was detected at the center of the wild-type SAM and decreased with meristem age, being no longer detectable in arrested meristems. In ful mutants, *WUS* expression was similar to wild-type at earlier time points, but was still present in ful inflorescences at 4 or 5 weeks after bolting, and even later time points, long after wild-type plants had undergone GPA 
+  + *FUL* regulates GPA by fine-tuning *AP2* activity in the SAM. Mutations in the miR172 binding site of AP2, shows a dramatically delayed GPA. Induction of w.t. AP2-170 expression in arrested plants reactivates SAM and flower and fruit production.  Transcript levels of *AP2* are significantly elevated in the inflorescence meristems of *ful* mutants.
+*FUL* and AP2-like genes are targets of the age-dependent pathway that controls developmental phase-transitions in Arabidopsis. Evidenced by a pathway involving miR156, whose levels decrease with plant age (Wu 2009,Wang 2009)
+  + So, in the case of broccoli, *BoFUL* inhibits *BoAP2* or *BoFUL* promotes miR156/172 in turn inhibiting *AP2* pathway, leading to reduced WUS expression (Balanzà, 2018):
+
+## Auxins
+  + Floral meristem identity is driven by *FLY* and *AP1*, but those are in turn driven by many auxin sensitive factors (or auxin itself in the case of *LFY*)
+  + Targets of auxin regulation that are known to interact with *LFY*: {*DRN, DRNL, PUNCHI, BOP1, BOP2*}
+  + Targets of auxin regulation that are known to interact with *AP1*: {*BOP1, BOP2, TGA, LFY*}
+
+
+## Duplicated gene hypothesis:
+  + Divergent fates of duplicated genes ; complementation hypothesis ; sub-functionalization process ; duplication–degeneration–complementation process:
+  + After duplication, the gene copies acquire complementary loss-of-function mutations in independent sub-functions, such that *FUL*/*AP1*/*CAL* are required to produce the full complement of functions of the single ancestral gene.
+  + In *ap1* mutants *FUL* RNA accumulates in flower meristems at earlier stages (loss of negative regulatory interaction between the two?)
+  + Why would the continuing redundancy between the *AP1*, *CAL* and *FUL* genes since the last major duplication event occurred at least 65 Mya? (does this weaken or strengthen this idea?)
+  + Is *CAL* changing into a pseudogene, as FUL and AP1 displace its functionality?  ( i.e. all the functions of the wild-type *CAL* gene product can also be performed by the wild-type *AP1* gene product, but only some of the AP1 functions can be carried out by *CAL*).
+  + Under this scenario, *FUL*/*AP1*/*CAL* would have to all negatively regulated by a heat signal?
+  + How much the have functions of *AP1* and *CAL* have diverged since A.t. and B.o. shared a common ancestor? 
+
+## Inflorescence abnormalities/arrest in other families: 
+  + Mutants have been described in different species in which the basic curd architecture develops in place of normal flower development 
+  + Using positional cloning (Lippmann, 2008) implicated three transcription factors: two AP2-like genes and a WUSCHEL-homeobox (WOX) implicated in the "compound inflorescence (s)" trait (this looks kind of like the Balanzà, (2018) theory to my eyes). 
+  + An X-ray mutagenesis line in medicago sativa produced a "cauliflower head' (Bayly and Craig, 1962) and (Brouwer and Osborn, 1997). There is no proposed molecular mechanism for this.
+
+
+
+
+# DEG analysis
+
+## Preliminaries
+
+```{r color palette}
+
+# #treatment colors:
+cC <- "#6fa8dc" # blue
+cH <- "#e06666" # red
+pC <- "#93c47d" # green
+pH <- "#ffd966" # yellow
+
+```
+
+## Biomart
+```{r biomart setup, eval=FALSE}
+# load biomart
+ensembl_bol = useMart(
+  host = "plants.ensembl.org",
+  "plants_mart",
+  dataset = "boleracea_eg_gene")
+
+
+attributesHOMO = c(
+  "ensembl_gene_id",
+  "chromosome_name",
+  "start_position",
+  "end_position",
+  # Arabidopsis stuff
+  "athaliana_eg_homolog_ensembl_gene",
+  "athaliana_eg_homolog_associated_gene_name",
+  "athaliana_eg_homolog_perc_id"
+)
+
+attributesGO = c(
+  "ensembl_gene_id",
+  "chromosome_name",
+  "start_position",
+  "end_position",
+  #GO stuff
+  "go_id",
+  "name_1006",
+  "definition_1006",
+  "go_linkage_type",
+  "namespace_1003"
+)
+
+```
+
+
+## Read Data
+```{r import data, eval=FALSE }
+
+samples <-
+  read.csv("raw/coldata.csv", 
+           stringsAsFactors = TRUE) %>%
+  dplyr::filter(drop == "n") 
+
+rawcounts <-
+  read.delim("raw/ensembl_rawCounts.txt",
+             row.names = 1,
+             sep = "\t") %>%
+  dplyr::select(samples$old) %>%
+  setnames(
+    old = as.character(samples$old), 
+    new = as.character(samples$new)
+    ) %>%
+  as.matrix()
+
+row.names(rawcounts) <- gsub("gene:", "", row.names(rawcounts))
+
+all(samples$new %in% colnames(rawcounts))
+all(samples$new == colnames(rawcounts))
+
+COMPARISONS <- colnames(samples)[11:18]
+````
+
+
+## Select Model & Run
+### Simple Models
+```{r compare between groups, eval=FALSE}
+
+sapply(COMPARISONS, function(x) {
+  # Read data in, set model
+  dds <-
+    DESeqDataSetFromMatrix(countData = rawcounts,
+                           colData = samples,
+                           design = as.formula(paste("~", noquote(x))))
+  
+  # prefilter results
+  dds <- dds[rowSums(counts(dds)) >= 10,]
+  
+  # Run DESeq
+  dds <- DESeq(dds)
+  
+  # Choose only significant results
+  dat <- subset(
+    results(dds, 
+            contrast = c(x, "y", "n"),
+            lfcThreshold = 1), 
+    padj < 0.01)
+  
+  #write a list of DEGs
+  write.table(
+    rownames(dat),
+    paste("rst/genes/candidates/", x, ".txt", sep = ""),
+    row.names = FALSE,
+    col.names = FALSE,
+    quote = FALSE
+  )
+  
+  # Pull down annotations from biomart
+  homo <-  getBM(
+    attributes = attributesHOMO,
+    filters = 'ensembl_gene_id',
+    values = rownames(dat),
+    mart = ensembl_bol
+  )
+  
+  # Match biomart data with DEGs (prunes out mismatches)
+  dat <-
+    cbind(
+      dat, 
+      homo[match(rownames(dat),homo[, "ensembl_gene_id"]),]
+      )
+  
+  #write homologs
+  write.csv(dat, 
+            paste("rst/genes/homologs/", x, "_homolog.csv", 
+                  sep = "")
+            )
+
+  # Multiplot of group specific DEGs
+  # Roughly plan multiplot dimensions
+  plotSIZE <- ceiling(sqrt(dim(dat)[1]))
+  
+  # ensure graphing device is off
+  while (!is.null(dev.list()))  dev.off()
+  pdf(
+    paste("rst/genes/plots/", x, ".pdf", sep = ""),
+    height = plotSIZE * 2,
+    width = plotSIZE * 2
+  )
+  
+  # Graphing parameters
+  par(
+    mfcol = c(plotSIZE, plotSIZE),
+    oma = c(4, 1.5, 4, 0.5),
+    mar = c(0.15, 1, 0.15, 1)
+  )
+ 
+  # Call a null plot for legend
+  plot(
+    NULL,
+    xlim = c(0, 1),
+    ylim = c(0, 1),
+    xaxt = 'n',
+    yaxt = 'n'
+  )
+  legend(
+    "bottomleft",
+    legend = c(
+      "Clara-Cold", 
+      "Clara-Hot", 
+      "P13-Cold", 
+      "P13-Hot"),
+    col = c(cC, cH, pC, pH),
+    pch = 19,
+    bty = "n",
+    pt.cex = 2,
+    cex = 2.1,
+    text.col = "black",
+    horiz = F,
+    #inset = c(0.1, 0.1)
+  )
+
+  for (i in rownames(dat)) {
+   plotCountsMod(
+      dds,
+      gene = i,
+      main = "",
+      xlab = "",
+      xaxt = 'n',
+      intgroup = x,
+      col = alpha(dds$color, 0.8),
+      pch = 19,
+      cex = 1.75,
+      #returnData=TRUE
+    )
+    
+    # Gene-specific text
+    mtext(
+      paste(
+        dat$ensembl_gene_id[rownames(dat) == i],
+        "\n",
+        dat$athaliana_eg_homolog_ensembl_gene[rownames(dat) == i],
+        "\n",
+        dat$athaliana_eg_homolog_associated_gene_name[rownames(dat) == i],
+        " (",
+        round(dat$athaliana_eg_homolog_perc_id[rownames(dat) == i], 1),
+        "%)"
+        ,
+        sep = ""
+      ),
+      side = 3,
+      cex = 0.65,
+      padj = 2,
+      outer = FALSE
+    )
+
+  }
+
+  mtext(
+    paste(x, " heat treatment by gene", sep = ""),
+    cex = 2,
+    padj = -1,
+    side = 3,
+    outer = TRUE
+  )
+  mtext(
+    paste(
+      "Top DEGs indentified in ",
+      x,
+      " treatment, with best A. thaliana homologs (+ % seq id)",
+      sep = ""
+    ),
+    cex = 1.2,
+    padj = 1,
+    side = 1,
+    outer = TRUE
+  )
+
+  dev.off()
+  
+})
+```
+
+### Complex Model
+```{r complex model, eval=FALSE}
+#read as DE dataset
+dds <- DESeqDataSetFromMatrix(
+  countData = rawcounts,
+  colData = samples,
+  design = ~ geno + temp + geno:temp
+)
+
+# Prefiltering...
+dds <- dds[rowSums(counts(dds)) >= 10, ]
+
+# DEGs
+dds <- DESeq(dds)
+
+# Calc &  Subset results
+res <- subset(
+  results(
+    dds,
+    name = "genop.temphot",
+    lfcThreshold = 1
+    ), 
+  padj < 0.05
+  )
+
+#write a list of DEGs
+write.table(
+  rownames(res),
+  paste("rst/genes/genop.temphot.txt", sep = ""),
+  row.names = FALSE,
+  col.names = FALSE,
+  quote = FALSE
+)
+
+homo <-  getBM(
+  attributes = attributesHOMO,
+  filters = 'ensembl_gene_id',
+  values = rownames(res),
+  mart = ensembl_bol
+)
+
+# match homologs
+homo <-
+  cbind(res, 
+        homo[match(rownames(res), homo[, "ensembl_gene_id"]), ]
+        )
+
+
+# Calcluate shrinkage
+resLFC <- lfcShrink(
+  dds, 
+  coef = "genop.temphot", 
+  type = "apeglm"
+  )
+
+# MA Plots
+png("rst/genes/MA_shrink.png", 
+    height = 10, 
+    width=5, 
+    units="in", 
+    res=300
+    )
+
+par(mfcol=c(2,1))
+
+# Without shrinkage
+plotMA(dds,
+       ylim = c(-30, 30),
+       main = "Heat response [P13xP19] vs [Clara]",
+       alpha = 0.01)
+# With shrinkage
+plotMA(resLFC,
+       ylim = c(-20, 20),
+       main = "Heat response [P13xP19] vs [Clara] w/ shrink",
+       alpha = 0.01)
+
+dev.off()
+```
+
+
+### Specific Candidates
+```{r comparing against candidates, eval=FALSE}
+# run DEG analysis
+  dds <-
+    DESeqDataSetFromMatrix(countData = rawcounts,
+                           colData = samples,
+                           design = ~ geno + temp + geno:temp)
+  
+# prefilter results
+  dds <- dds[rowSums(counts(dds)) >= 10,]
+  
+# Run DESeq
+  res <- results(DESeq(dds),name = "genop.temphot")
+
+
+# read previously identified candidates
+  candi <- read.csv("raw/candidates.csv", stringsAsFactors = FALSE) %>%
+  dplyr::select(gene = Annotation.V2.1)
+#%>%  distinct(gene,  .keep_all = TRUE)
+
+#make plots of all candidates individually
+  for (i in candi$gene[candi$gene %in% rownames(dds)]) {
+    deg.plot(i)
+  }
+  
+  
+  candi <-  getBM(
+    attributes = attributesHOMO,
+    filters = 'ensembl_gene_id',
+    values = candi,
+    mart = ensembl_bol
+  )
+  
+  #combine and merge
+  dat <- res[rownames(res) %in% candi$ensembl_gene_id,]
+  dat <-
+    cbind(dat, candi[match(rownames(dat), candi[, "ensembl_gene_id"]),])
+  dat <- dat[order(dat$padj),]
+  
+  
+  
+  plotSIZE <- ceiling(sqrt(dim(dat)[1]))
+  while (!is.null(dev.list()))
+    dev.off()
+  pdf("rst/genes/devCandidates/goi.pdf",
+      heigh =  plotSIZE * 2,
+      width =  plotSIZE * 2)
+  par(mfrow = c(plotSIZE, plotSIZE),
+      mar = c(3, 1, 1.5, 1))
+  
+  plot(
+    NULL,
+    xlim = c(0, 1),
+    ylim = c(0, 1),
+    xaxt = 'n',
+    yaxt = 'n'
+  )
+  legend(
+    "bottomleft",
+    legend = c("Clara-Cold", "Clara-Hot", "P13-Cold", "P13-Hot"),
+    col = c(cC, cH, pC, pH),
+    pch = 19,
+    bty = "n",
+    pt.cex = 2,
+    cex = 2.1,
+    text.col = "black",
+    horiz = F,
+    #inset = c(0.1, 0.1)
+  )
+  
+  
+  for (i in rownames(dat)) {
+    temp <-
+      plotCounts(
+        dds,
+        gene = i,
+        main = paste(i),
+        intgroup = c("geno", "temp"),
+        transform = TRUE,
+        pch = 19,
+        cex = 1.5,
+        xlab = "",
+        col = alpha(dds$color, 0.9)
+      )
+    # mtext(
+    #   ifelse(
+    #     dat$padj[rownames(dat) == i] < 0.001,
+    #     paste(
+    #       "p < 0.001"),
+    #       paste("p = ", round(dat$padj[rownames(dat) == i], 3), sep = "")),
+    #       side = 1,
+    #       padj = -3,
+    #       font = 2,
+    #       col = alpha("black", 0.75),
+    #       cex = 0.66,
+    #       outer = FALSE
+    #     )
+    mtext(
+      paste(
+        as.character(dat$athaliana_eg_homolog_ensembl_gene[rownames(dat) == i]),
+        "\n",
+        as.character(dat$athaliana_eg_homolog_associated_gene_name[rownames(dat) == i]),
+        " (",
+        as.character(round(dat$athaliana_eg_homolog_perc_id[rownames(dat) == i], 1)),
+        "%)",
+        "\n",
+        ifelse(
+          dat$padj[rownames(dat) == i] < 0.001,
+          paste("p < 0.001"),
+          paste("p = ", round(dat$padj[rownames(dat) == i], 3), sep = "")
+        ),
+        sep = ""
+      ),
+      side = 1,
+      padj = -3,
+      font = 2,
+      col = alpha("black", 0.75),
+      cex = 0.66,
+      outer = FALSE
+    )
+    
+  }
+  dev.off()
+
+```
+
+# WGCNA 
+
+```{r WGCNA analysis, eval=FALSE}
+options(stringsAsFactors = FALSE)
+enableWGCNAThreads()
+
+dds <-
+  DESeqDataSetFromMatrix(
+    countData = rawcounts,
+    colData = samples,
+    design = ~ geno + temp + geno:temp
+  )
+
+
+# prefilter results
+dds <- dds[rowSums(counts(dds)) >= 10,]
+  
+# Run DESeq
+dds <- DESeq(dds)
+
+# Choose only significant results
+# res <- subset(
+#   results(
+#     dds,
+#     name = "genop.temphot",
+#     lfcThreshold = 1
+#     ), 
+#   padj < 0.05
+#   )
+
+#dds <- estimateSizeFactors(dds)
+#dds <- estimateDispersions(dds)
+vsd <- varianceStabilizingTransformation(dds, blind=FALSE)
+vsd <- getVarianceStabilizedData(dds)
+
+
+vsd <- t(vsd)
+
+#  look at fraction of the data sampled randomly
+#vsd <- vsd[,sample(ncol(vsd),ncol(vsd)*.2) ]
+
+
+powers = c(c(1:10), seq(from = 12, to = 20, by = 2))
+
+sft = pickSoftThreshold(
+  vsd,
+  dataIsExpr = TRUE,
+  powerVector = powers,
+  corFnc = cor,
+  corOptions = list(use = 'p'),
+  networkType = "unsigned"
+)
+
+sizeGrWindow(9, 5)
+par(mfrow = c(1,2))
+cex1 = 0.9
+
+
+plot(
+  sft$fitIndices[, 1],
+  -sign(sft$fitIndices[, 3]) * sft$fitIndices[, 2],
+  xlab = "Soft Threshold (power)",
+  ylab = "Scale Free Topology Model Fit, signed R^2",
+  type = "n",
+  main = paste("Scale independence")
+)
+
+text(
+  sft$fitIndices[, 1],
+  -sign(sft$fitIndices[, 3]) * sft$fitIndices[, 2],
+  labels = powers,
+  cex = cex1,
+  col = "red"
+)
+
+
+# Red line corresponds to using an R^2 cut-off
+abline(h = 0.80, col = "red")
+
+# Mean connectivity as a function of the soft-thresholding power
+plot(
+  sft$fitIndices[, 1],
+  sft$fitIndices[, 5],
+  xlab = "Soft Threshold (power)",
+  ylab = "Mean Connectivity",
+  type = "n",
+  main = paste("Mean connectivity")
+)
+text(
+  sft$fitIndices[, 1],
+  sft$fitIndices[, 5],
+  labels = powers,
+  cex = cex1,
+  col = "red"
+)
+
+softPower = 5
+
+
+#calclute the adjacency matrix
+adj= adjacency(vsd,type = "unsigned", power = softPower);
+
+#turn adjacency matrix into topological overlap to minimize the effects of noise and spurious associations
+TOM = TOMsimilarityFromExpr(vsd,
+                            networkType = "unsigned",
+                            TOMType = "unsigned",
+                            power = softPower)
+
+
+gene.names  = colnames(TOM) = rownames(TOM) = colnames(vsd)
+
+
+dissTOM=1-TOM
+
+geneTree = flashClust(as.dist(dissTOM),method="average")
+
+#plot the resulting clustering tree (dendrogram)
+plot(geneTree, xlab="", sub="",cex=0.3)
+
+minModuleSize = 50
+
+# Module identification using dynamic tree cut
+
+dynamicMods <- cutreeDynamic(dendro = geneTree,
+                            method = "tree",
+                            minClusterSize = minModuleSize)
+
+#dynamicMods = cutreeDynamic(dendro = geneTree, distM = dissTOM, method="hybrid", deepSplit = 2, pamRespectsDendro = FALSE, minClusterSize = minModuleSize);
+
+#the following command gives the module labels and the size of each module. Lable 0 is reserved for unassigned genes
+table(dynamicMods)
+
+dynamicColors = labels2colors(dynamicMods)
+table(dynamicColors)
+
+plotDendroAndColors(
+  geneTree,
+  dynamicColors,
+  "Dynamic Tree Cut",
+  dendroLabels = FALSE,
+  hang = 0.03,
+  addGuide = TRUE,
+  guideHang = 0.05,
+  main = "Gene dendrogram and module colors"
+)
+
+
+diag(dissTOM) = NA
+
+#Visualize the Tom plot. Raise the dissimilarity matrix to the power of 4 to bring out the module structure
+sizeGrWindow(7, 7)
+hier1 = flashClust(as.dist(dissTOM), method = "average")
+TOMplot(dissTOM, 
+        hier1, 
+        terrainColors = TRUE,
+        as.character(dynamicColors))
+
+module_colors = unique(dynamicColors)
+#remove gray
+module_colors = setdiff(unique(dynamicColors), "grey")
+for (color in module_colors) {
+  module = gene.names[which(dynamicColors == color)]
+  write.table(
+    module,
+    paste("rst/WGCNA/modules/module_", color, ".txt", sep = ""),
+    sep = "\t",
+    row.names = FALSE,
+    col.names = FALSE,
+    quote = FALSE
+  )
+}
+
+
+
+#Look at expression patterns of these genes, as they're clustered
+
+module.order <-
+  unlist(tapply(1:ncol(vsd), as.factor(dynamicColors), I))
+
+m <- t(t(vsd[, module.order]) / apply(vsd[, module.order], 2, max))
+heatmap(
+  t(m),
+  zlim = c(0, 1),
+  col = gray.colors(100),
+  Rowv = NA,
+  Colv = NA,
+  labRow = NA,
+  scale = "none",
+  RowSideColors = dynamicColors[module.order]
+)
+                                
+
+#We can now look at the module gene listings and try to interpret their functions .. for instance using http://amigo.geneontology.org/rte
+
+#Quantify module similarity by eigengene correlation. Eigengenes: Module representatives
+
+MEList = moduleEigengenes(vsd, colors = dynamicColors)
+MEs = MEList$eigengenes
+plotEigengeneNetworks(MEs, "", marDendro = c(0,4,1,2), marHeatmap = c(3,4,1,2))
+
+
+
+
+
+```
+
+
+
+# GO Analysis
+## Get GO Terms
+```{R grab GO terms, eval=FALSE}
+options(stringsAsFactors = FALSE)
+#Get go terms
+GO <-  getBM(
+  attributes = attributesGO,
+  filters = 'ensembl_gene_id',
+  values = row.names(rawcounts),
+  mart = ensembl_bol
+)
+
+GO <- GO[!(is.na(GO$name_1006) | GO$name_1006 == ""),]
+write.csv(
+  GO, 
+  "../OUTPUT/GO/DATA/ALL.csv", 
+  row.names = FALSE)
+
+# Make summary table
+while (!dir.exists(paste("../OUTPUT/GO/DATA/", sep = ""))) {
+  dir.create(
+    paste("../OUTPUT/GO/DATA/", sep = ""),
+    showWarnings = TRUE,
+    recursive = FALSE,
+    mode = "0777"
+  )
+}
+
+write.csv(
+  gotable <- GO %>%
+    group_by(go_id, name_1006) %>%
+    dplyr::summarize(count = n()) %>%
+    rename(id = go_id, name = name_1006) %>%
+    arrange(-count),
+  "../OUTPUT/GO/DATA/summary.csv",
+  row.names = FALSE
+)
+
+
+# read GO data
+GO <- read.csv("../DATA/GO/ALL.csv")
+
+# build the gene2GO annotation list
+gene_2_GO = unstack(GO[, c("go_id", "ensembl_gene_id")])
+```
+
+## Treatments
+```{r GO for DEGs, eval=FALSE}
+start <- Sys.time()
+
+
+
+for (j in COMPARISONS) {
+  
+  # Choose Data
+  DEG <-
+    read.delim(paste("../OUTPUT/genes/candidates/", j, ".txt", sep = ""),
+               header = FALSE)
+  # remove any candidate genes without GO annotation
+  DEG <- droplevels(DEG$V1[DEG$V1 %in% GO[, 1]])
+  
+  # make named factor showing which genes are of interest
+  geneList = factor(as.integer(GO$ensembl_gene_id %in% DEG))
+  names(geneList) = GO$ensembl_gene_id
+  
+  for (i in c("BP", "MF", "CC")) {
+    GOdata <-
+      new(
+        "topGOdata",
+        ontology = i,
+        allGenes = geneList,
+        annot = annFUN.gene2GO,
+        gene2GO = gene_2_GO
+      )
+    
+    
+    weight_fisher_result = runTest(
+      GOdata, 
+      algorithm = 'weight01', 
+      statistic ='fisher')
+    
+    # Generate a summary table w/ topGOdata object tests.
+    allGO = usedGO(GOdata)
+    all_res = GenTable(
+      GOdata,
+      weightFisher = runTest(
+        GOdata, 
+        algorithm = 'weight01', 
+        statistic = 'fisher'),
+      orderBy = 'weightFisher',
+      topNodes = length(allGO)
+    )
+    # set 1e-30 to zero
+    all_res$weightFisher[all_res$weightFisher == "< 1e-30"]  <- 0
+    all_res$weightFisher <- as.numeric(all_res$weightFisher)
+    #performing BH correction on p values
+    p.adj = round(p.adjust(all_res$weightFisher, method = "BH"), digits = 4)
+    all_res_final = cbind(all_res, p.adj)
+    all_res_final = all_res_final[order(all_res_final$p.adj), ]
+    
+    #get list of significant GO before multiple testing correction
+    results.table.p = all_res_final[all_res_final$p.adj < 0.05, ]
+    NOsig <- dim(results.table.p)[1]
+    
+    while (!dir.exists(paste("../OUTPUT/GO/", j, "/", sep = ""))) {
+      dir.create(
+        paste("../OUTPUT/GO/", j, "/", sep = ""),
+        showWarnings = TRUE,
+        recursive = FALSE,
+        mode = "0777"
+      )
+    }
+    #save ontolgies sorted by adjusted pvalues
+    write.table(
+      all_res_final,
+      paste("../OUTPUT/GO/", j, "/", j, "_", i, ".txt", sep = ""),
+      quote = FALSE,
+      row.names = FALSE,
+      sep = "\t"
+    )
+    
+    # PLOT the GO hierarchy plot. 
+    # Enriched GO terms ~ yellow/red x sig level
+    pdf(
+      file = paste("../OUTPUT/GO/", j, "/", j, "_", i, ".pdf", sep = ""),
+      height = 10,
+      width = 10,
+      paper = 'special',
+      pointsize = 35
+    )
+    showSigOfNodes(
+      GOdata,
+      score(weight_fisher_result),
+      useInfo = "all",
+      sigForAll = FALSE,
+      #only include p.adj nodes
+      firstSigNodes = ifelse(NOsig < 10,
+                         dim(results.table.p)[1],
+                         dim(results.table.p[results.table.p$p.adj < 0.01,])[1]
+      ),
+      .NO.CHAR = 50
+    )
+    dev.off()
+  }
+}
+
+end <- Sys.time()
+end - start
+#Time difference of 8.979477 mins
+```
+
+## Modules
+
+```{r Go modules}
+options(stringsAsFactors = FALSE)
+GO <- read.csv("../DATA/GO/ALL.csv")
+
+
+
+while (!dir.exists(paste("../OUTPUT/GO/MODULES/", sep = ""))) {
+  dir.create(
+    paste("../OUTPUT/GO/MODULES/", sep = ""),
+    showWarnings = TRUE,
+    recursive = FALSE,
+    mode = "0777"
+  )
+}
+
+
+MODULE <- module_colors
+
+for (j in MODULE) {
+  
+  # Choose Data
+  DEG <-
+    read.delim(paste("../OUTPUT/WGCNA/modules/module_", j, ".txt", sep = ""),
+               stringsAsFactors = TRUE,
+               header = FALSE)
+  # remove any candidate genes without GO annotation
+  DEG <- droplevels(DEG$V1[DEG$V1 %in% GO[, 1]])
+  
+  # make named factor showing which genes are of interest
+  geneList = factor(as.integer(GO$ensembl_gene_id %in% DEG))
+  names(geneList) = GO$ensembl_gene_id
+  
+  for (i in c("BP", "MF", "CC")) {
+    GOdata <-
+      new(
+        "topGOdata",
+        ontology = i,
+        allGenes = geneList,
+        annot = annFUN.gene2GO,
+        gene2GO = gene_2_GO
+      )
+    
+    
+    weight_fisher_result = runTest(
+      GOdata, 
+      algorithm = 'weight01', 
+      statistic ='fisher')
+    
+    # Generate a summary table w/ topGOdata object tests.
+    allGO = usedGO(GOdata)
+    all_res = GenTable(
+      GOdata,
+      weightFisher = runTest(
+        GOdata, 
+        algorithm = 'weight01', 
+        statistic = 'fisher'),
+      orderBy = 'weightFisher',
+      topNodes = length(allGO)
+    )
+    # set 1e-30 to zero
+    all_res$weightFisher[all_res$weightFisher == "< 1e-30"]  <- 0
+    all_res$weightFisher <- as.numeric(all_res$weightFisher)
+    #performing BH correction on p values
+    p.adj = round(p.adjust(all_res$weightFisher, method = "BH"), digits = 4)
+    all_res_final = cbind(all_res, p.adj)
+    all_res_final = all_res_final[order(all_res_final$p.adj), ]
+    
+    #get list of significant GO before multiple testing correction
+    results.table.p = all_res_final[all_res_final$p.adj < 0.05, ]
+    NOsig <- dim(results.table.p)[1]
+    
+    while (!dir.exists(paste("../OUTPUT/GO/MODULES/", j, "/", sep = ""))) {
+      dir.create(
+        paste("../OUTPUT/GO/MODULES/", j, "/", sep = ""),
+        showWarnings = TRUE,
+        recursive = FALSE,
+        mode = "0777"
+      )
+    }
+    #save ontolgies sorted by adjusted pvalues
+    write.table(
+      all_res_final,
+      paste("../OUTPUT/GO/MODULES/", j, "/", j, "_", i, ".txt", sep = ""),
+      quote = FALSE,
+      row.names = FALSE,
+      sep = "\t"
+    )
+    
+    # PLOT the GO hierarchy plot. 
+    # Enriched GO terms ~ yellow/red x sig level
+    pdf(
+      file = paste("../OUTPUT/GO/MODULES/", j, "/", j, "_", i, ".pdf", sep = ""),
+      height = 10,
+      width = 10,
+      paper = 'special',
+      pointsize = 35
+    )
+    showSigOfNodes(
+      GOdata,
+      score(weight_fisher_result),
+      useInfo = "all",
+      sigForAll = FALSE,
+      #only include p.adj nodes
+      firstSigNodes = ifelse(NOsig < 10,
+                         dim(results.table.p)[1],
+                         dim(results.table.p[results.table.p$p.adj < 0.01,])[1]
+      ),
+      .NO.CHAR = 50
+    )
+    dev.off()
+  }
+}
+
+end <- Sys.time()
+end - start
+#Time difference of 
+
+```
+
+  # Visualize Samples
+![Heat map of samples used (p = p13xp19; c = 'Clara'; hot /cold :: heat and non-heated treatments, respectively)](../OUTPUT/samples/sampleheatmap.png)
+```{r sample to sample distnace, eval=FALSE }
+#variance stabilizing transformation
+vsd <- vst(dds, blind=FALSE)
+
+sampleDists <- dist(t(assay(vsd)))
+
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- paste(colnames(vsd),vsd$temp, vsd$geno, sep="-")
+colnames(sampleDistMatrix) <- NULL
+colors <- viridis(9)
+
+dev.off()
+ggsave(
+  "../OUTPUT/samples/sampleheatmap.png",
+  pheatmap(
+    sampleDistMatrix,
+    clustering_distance_rows = sampleDists,
+    clustering_distance_cols = sampleDists,
+    col = colors
+  )
+)
+
+
+pcaData <- plotPCA(vsd, intgroup=c("temp", "geno"), returnData=TRUE)
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+ggplot(pcaData, 
+       aes(PC1, PC2, color=temp, shape=geno)
+       ) +
+  geom_point(size=5) +
+  theme_minimal()+
+  scale_color_manual(values=c(cC,cH))+
+  coord_fixed()
+dev.off()
+ggsave(
+  "../OUTPUT/samples/samplePCA.png",
+  ggplot(pcaData, aes(
+    PC1, PC2, color = temp, shape = geno
+  )) +
+    geom_point(size = 5) +
+    theme_minimal() +
+    scale_color_manual(values = c(cC, cH)) +
+    coord_fixed()
+)
+dev.off()
+```
+
+
+
+
+
+
+
+
+  
